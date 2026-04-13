@@ -15,7 +15,7 @@ export const deleteFromCloudinary = async (imageUrl: string) => {
 
   let startIndex = uploadIndex + 1;
   // Skip version segment like "v1234567890"
-  if (parts[startIndex]?.match(/^v\d+$/)) startIndex++;
+  if (parts[startIndex]?.match(/^v\d+$/)) startIndex++;  
 
   const publicId = parts.slice(startIndex).join('/').replace(/\.[^.]+$/, '');
   return await cloudinary.uploader.destroy(publicId);

@@ -40,9 +40,12 @@ export const signup = async (req: Request, res: Response) => {
 
     const token = generateToken(newUser[0]!.id);
 
+    const { password: _, ...safeUser } = newUser[0]!;
+
     res.status(201).json({
       message: "Signup successful",
       token,
+      user: safeUser,
     });
   } catch (error) {
     console.log(error);
@@ -81,9 +84,12 @@ export const login = async (req: Request, res: Response) => {
 
     const token = generateToken(user[0]!.id);
 
+    const { password: _, ...safeUser } = user[0]!;
+
     res.json({
       message: "Login successful",
       token,
+      user: safeUser,
     });
   } catch (error) {
     res.status(500).json({

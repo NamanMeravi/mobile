@@ -84,10 +84,50 @@ export const getUserBooks = async (req: Request, res: Response) => {
   }
 };
 
+export const updateBook = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const id = req.params.id as string;
+    const { title, caption, rating } = req.body;
+
+    const [book] = await db
+      .select()
+      .from(books)
+      .where(eq(books.id, id!))
+      .limit(1);
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    if (book.userId !== user.id) {
+      return res.status(403).json({ message: "Not authorized to update this book" });
+    }
+
+    if (rating !== undefined && (rating < 1 || rating > 5)) {
+      return res.status(400).json({ message: "Rating must be between 1 and 5" });
+    }
+
+    const [updated] = await db
+      .update(books)
+      .set({
+        ...(title && { title }),
+        ...(caption && { caption }),
+        ...(rating !== undefined && { rating: Number(rating) }),
+      })
+      .where(eq(books.id, id!))
+      .returning();
+
+    res.json({ message: "Book updated successfully", book: updated });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update book", error });
+  }
+};
+
 export const deleteBook = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const [book] = await db
       .select()
